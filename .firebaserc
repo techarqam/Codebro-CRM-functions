@@ -1,0 +1,6 @@
+{
+  "projects": {
+    "default": "codebro-crm",
+    "crm": "codebro-crm-433be"
+  }
+}
