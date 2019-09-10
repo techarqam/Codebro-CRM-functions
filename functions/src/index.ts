@@ -2,58 +2,60 @@
 import * as functions from 'firebase-functions';
 import * as admin from 'firebase-admin';
 const nodemailer = require('nodemailer');
-const cors = require('cors')({ origin: true });
+// const cors = require('cors')({ origin: true });
 admin.initializeApp();
 
 
 
 
 
-export const createUsers = functions.firestore.document('Users/{user}').onCreate(async snapshot => {
+// export const createUsers = functions.firestore.document('Users/{user}').onCreate(async snapshot => {
 
-    const user: any = snapshot.data();
-    const password = await createPassword();
-    console.log(password);
-    const docId = snapshot.id;
+//     console.log("Started");
+//     const user: any = snapshot.data();
+//     // const password = await createPassword();
+//     // console.log(password);
+//     const docId = snapshot.id;
 
-    if (!user.password) {
-
-
-
-        admin.auth().createUser({
-            email: user.email,
-            password: password,
-            displayName: user.name,
-        }).then(function (userRecord) {
-            console.log("uid", userRecord.uid);
-            user.password = password;
-            console.log("user1", user);
-            admin.firestore().doc(`/Users/${userRecord.uid}`).set(user).then(() => {
-                admin.firestore().doc(`/Users/${docId}`).delete().then(() => {
-
-                    console.log("User Created")
-
-                }).catch(function (error) { console.log("error", error) })
-            }).catch(function (error) { console.log("error", error) })
-        }).catch(function (er) {
-            admin.firestore().doc(`/Users/${docId}`).delete().catch(function (err) { console.log("error", err) })
-        })
+//     if (!user.password) {
 
 
-    }
-})
+
+//         admin.auth().createUser({
+//             email: user.email,
+//             password: user.password,
+//             displayName: user.name,
+//         }).then(function (userRecord) {
+//             console.log("uid", userRecord.uid);
+//             // user.password = password;
+//             console.log("user1", user);
+//             admin.firestore().doc(`/Users/${docId}`).delete().then(() => {
+//                 admin.firestore().doc(`/Users/${userRecord.uid}`).set(user).then(() => {
+
+//                     console.log("User Created")
+
+//                 }).catch(function (error) { console.log("error", error) })
+//             }).catch(function (error) { console.log("error", error) })
+//         }).catch(function (er) {
+//             console.log(er);
+//             admin.firestore().doc(`/Users/${docId}`).delete().catch(function (err) { console.log("error", err) })
+//         })
 
 
-async function createPassword() {
-    let length = 8;
-    let charset = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
-    let retVal: string = "";
-    for (var i = 0, n = charset.length; i < length; ++i) {
-        retVal += charset.charAt(Math.floor(Math.random() * n));
-    }
-    return retVal;
+//     }
+// })
 
-}
+
+// async function createPassword() {
+//     let length = 8;
+//     let charset = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
+//     let retVal: string = "";
+//     for (var i = 0, n = charset.length; i < length; ++i) {
+//         retVal += charset.charAt(Math.floor(Math.random() * n));
+//     }
+//     return retVal;
+
+// }
 
 let transporter = nodemailer.createTransport({
     service: 'gmail',
@@ -63,32 +65,32 @@ let transporter = nodemailer.createTransport({
     }
 });
 
-exports.sendMail = functions.https.onRequest((req, res) => {
-    cors(req, res, () => {
+exports.sendMailNew = functions.firestore.document('Users/{user}').onCreate(async snapshot => {
+    // cors(req, res, () => {
 
-        // getting dest email by query string
-        const dest = req.query.dest;
+    // getting dest email by query string
+    // const dest = req.query.dest;
+    // const pass = req.query.pass;
+    const user: any = snapshot.data();
 
-        const mailOptions = {
-            from: 'Codebro<techarqam@gmail.com>', // Something like: Jane Doe <janedoe@gmail.com>
-            to: dest,
-            subject: 'I\'M A PICKLE!!!', // email subject
-            html: `<p style="font-size: 16px;">Pickle Riiiiiiiiiiiiiiiick!!</p>
-                <br />
-                <h2>https://us-central1-codebro-crm-433be.cloudfunctions.net/sendMail?dest=techarqam@gmail.com</h2>
-                <img src="https://images.prod.meredith.com/product/fc8754735c8a9b4aebb786278e7265a5/1538025388228/l/rick-and-morty-pickle-rick-sticker" />
-            ` // email content in HTML
-        };
+    const mailOptions = {
+        from: 'Codebro<techarqam@gmail.com>', // Something like: Jane Doe <janedoe@gmail.com>
+        to: user.email,
+        subject: 'Welcome to Codebro',
+        html: `<h1>Your Password is ${user.pass}</h1>
+                <img src="https://firebasestorage.googleapis.com/v0/b/codebro-crm-433be.appspot.com/o/Logo%2Ficon.png?alt=media&token=daefd36b-7f10-4c9f-8563-8ca752a01f34" />
+            `
+    };
 
-        // returning result
-        return transporter.sendMail(mailOptions, (erro: string, info: string) => {
-            if (erro) {
-                return res.send(erro.toString());
-            }
-            return res.send('Sended');
-        });
+    // returning result
+    return transporter.sendMail(mailOptions, (erro: string, info: string) => {
+        if (erro) {
+            console.log(erro.toString());
+        }
+        console.log('Email Sent');
     });
 });
+// });
 
 
 
