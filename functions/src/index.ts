@@ -76,8 +76,8 @@ exports.sendMailNew = functions.firestore.document('Users/{user}').onCreate(asyn
     const mailOptions = {
         from: 'Codebro<techarqam@gmail.com>', // Something like: Jane Doe <janedoe@gmail.com>
         to: user.email,
-        subject: 'Welcome to Codebro',
-        html: `<h1>Your Password is ${user.pass}</h1>
+        subject: 'Welcome to Codebro CRM',
+        html: `<h1>Your Password is ${user.password}</h1>
                 <img src="https://firebasestorage.googleapis.com/v0/b/codebro-crm-433be.appspot.com/o/Logo%2Ficon.png?alt=media&token=daefd36b-7f10-4c9f-8563-8ca752a01f34" />
             `
     };
